@@ -1,4 +1,3 @@
-/!/usr/bin/python3
 import pygame, sys, random
 from pygame.locals import *
 from fonts import *

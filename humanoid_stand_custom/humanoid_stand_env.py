@@ -176,6 +176,8 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(self):
         self.num_steps = 0
+        self.facing_down = False
+        self.half_up = False
         mujoco_env.MujocoEnv.__init__(self, "humanoidstandup.xml", 5)
         utils.EzPickle.__init__(self)
 
@@ -191,6 +193,16 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 data.cfrc_ext.flat,
             ]
         )
+
+    def calc_reward_limb(self, limb_pos, head_pos, head_mat, is_right, is_hand):
+        pos = np.subtract(limb_pos,head_pos).dot(head_mat)[1]
+        if is_right:
+            pos = -pos
+        opt_pos = 0.3 if is_hand else 0.1
+        if pos > opt_pos:
+            return max(0.5, 1 + opt_pos - pos)
+        else:
+            return max(-1, 1 - 3 * opt_pos + 3 * pos)
 
     def euler_from_quaternion(self, quat):
         """
@@ -222,18 +234,36 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def step(self, a):
         self.num_steps += 1
         self.do_simulation(a, self.frame_skip)
-        #pos_after = self.sim.data.qpos[2]
-        pelvis_height = self.sim.data.get_body_xpos("pelvis")[2] 
-        #head_height = self.sim.data.get_geom_xpos("head")[2]
-        #right_foot_height = self.sim.data.get_geom_xpos("right_foot")[2]
-        #left_foot_height = self.sim.data.get_geom_xpos("left_foot")[2]
-        #right_hand_height = self.sim.data.get_geom_xpos("right_hand")[2]
-        #left_hand_height = self.sim.data.get_geom_xpos("left_hand")[2]
-        z_angle = math.degrees(self.euler_from_quaternion(self.sim.data.get_body_xquat("pelvis"))[2])
         data = self.sim.data
-        #- right_hand_height - left_hand_height - right_foot_height - left_foot_height 
-        uph_cost = pelvis_height + abs(z_angle) / 180
+        head_pos = data.get_geom_xpos("head")
+        right_foot_pos = data.get_geom_xpos("right_foot")
+        left_foot_pos = data.get_geom_xpos("left_foot")
+        right_hand_pos = data.get_geom_xpos("right_hand")
+        left_hand_pos = data.get_geom_xpos("left_hand")
+        z_angle = abs(math.degrees(self.euler_from_quaternion(data.get_body_xquat("torso"))[2]))
 
+        if z_angle > 170:
+            self.facing_down = True
+        if head_pos[2] > 0.7:
+            self.half_up = True
+
+        if self.facing_down:
+            if self.half_up:
+                uph_cost = 4 + head_pos[2]*4
+            else:
+                head_mat = data.get_geom_xmat("head")
+                reward_right_hand = self.calc_reward_limb(right_hand_pos, head_pos, head_mat, True, True)
+                reward_left_hand = self.calc_reward_limb(left_hand_pos, head_pos, head_mat, False, True)
+                reward_right_foot = self.calc_reward_limb(right_foot_pos, head_pos, head_mat, True, False)
+                reward_left_foot = self.calc_reward_limb(left_foot_pos, head_pos, head_mat, False, False)
+                uph_cost = 4 + head_pos[2]*4 - right_foot_pos[2] - left_foot_pos[2] - right_hand_pos[2] - left_hand_pos[2] + reward_right_hand + reward_left_hand + reward_right_foot + reward_left_foot
+        else:
+            uph_cost = z_angle / 45
+        #print(data.get_geom_xpos("right_hand"))
+        #print(data.get_geom_xmat("right_hand"))
+        #print("facing_down=" + str(self.facing_down) + 
+        #        ", half_up=" + str(self.half_up) + 
+        #        ", reward=" + str(uph_cost))
         quad_ctrl_cost = 0.1 * np.square(data.ctrl).sum()
         quad_impact_cost = 0.5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
@@ -264,6 +294,9 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 size=self.model.nv,
             ),
         )
+        self.facing_down = False
+        self.half_up = False
+
         return self._get_obs()
 
     def viewer_setup(self):

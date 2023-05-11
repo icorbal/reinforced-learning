@@ -1,7 +1,7 @@
-import gym
+import gymnasium as gym
 from stable_baselines3 import PPO
 
-env = gym.make('Ant-v2')
+env = gym.make('Ant-v4')
 env.reset()
 
 model = PPO('MlpPolicy', env, verbose=1)
