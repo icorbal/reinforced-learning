@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 from stable_baselines3 import PPO
 import time
 import os
@@ -14,7 +14,7 @@ if not os.path.exists(models_dir):
 if not os.path.exists(logdir):
     os.makedirs(logdir)
 
-env = gym.make('HumanoidStandup-v2')
+env = gym.make('HumanoidStandup-v4')
 env.reset()
 
 model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir)
