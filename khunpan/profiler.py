@@ -2,8 +2,8 @@ from stable_baselines3 import PPO
 from khunpanenv import KhunPanEnv
 import cProfile
 
-NUM_ITERATIONS = 100
-NUM_STEPS = 100
+NUM_ITERATIONS = 1000
+NUM_STEPS = 1000
 
 env = KhunPanEnv()
 

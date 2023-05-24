@@ -1,11 +1,13 @@
-import gym, os, time
 from pathlib import Path
+
+import gymnasium as gym
+import os
 from stable_baselines3 import PPO
 
 paths = sorted(Path("models/").iterdir(), key=os.path.getmtime)
 models_dir = paths[-1]
 
-env = gym.make('HumanoidStandup-v2')
+env = gym.make('HumanoidStandup-v4', render_mode='human')
 env.reset()
 
 dirpath = f"{models_dir}/"
@@ -17,11 +19,13 @@ model = PPO.load(model_path, env=env)
 
 episodes = 100
 
+vec_env = model.get_env()
+
 for ep in range(episodes):
-    obs = env.reset()
+    obs = vec_env.reset()
     done = False
     while not done:
-        action, _states = model.predict(obs)
+        action, _states = model.predict(obs, deterministic=True)
         #print(action)
-        obs, rewards, done, info = env.step(action)
-        env.render()
+        obs, rewards, done, info = vec_env.step(action)
+        vec_env.render()

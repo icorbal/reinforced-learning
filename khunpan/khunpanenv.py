@@ -1,5 +1,5 @@
 from time import sleep
-
+import cupy as cp
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
@@ -210,7 +210,6 @@ class KhunPanEnv(gym.Env):
         return possible_actions
 
 
-
 class Board:
     def __init__(self):
         self.matrix = np.full((4, 5), None)
@@ -261,6 +260,9 @@ class Board:
                     observations[i] = self.matrix[x][y].num_id
                 i = i + 1
         return observations
+
+    def get_observations2(self):
+        return np.vectorize(lambda piece: piece.num_id if piece is not None else 0)(self.matrix).flatten()
 
 
 class Piece:
