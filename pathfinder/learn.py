@@ -1,15 +1,14 @@
 from typing import Callable
-
 from stable_baselines3.common.vec_env import SubprocVecEnv
-from khunpanenv import KhunPanEnv
+from env import Env
 from custom_logs import CustomTensorboardCallback
 from stable_baselines3 import PPO, DQN
 import time
 import os
 
 
-NUM_STEPS = 1000000
-NUM_ENVS = 4
+NUM_STEPS = 100000
+NUM_ENVS = 8
 
 if __name__ == "__main__":
     models_dir = f"models/{int(time.time())}/"
@@ -23,17 +22,17 @@ if __name__ == "__main__":
 
 
     def make_env() -> Callable:
-        def _init() -> KhunPanEnv:
-            return KhunPanEnv()
+        def _init() -> Env:
+            return Env()
         return _init
 
 
     if NUM_ENVS > 1:
         env = SubprocVecEnv([make_env() for i in range(NUM_ENVS)])
     else:
-        env = KhunPanEnv()
+        env = Env()
 
-    model = PPO('MlpPolicy', env, verbose=0, tensorboard_log=logdir, learning_rate=0.0001)
+    model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir)
     modelName = model.__class__.__name__
     iters = 0
     while True:

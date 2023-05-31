@@ -1,13 +1,12 @@
 from pathlib import Path
-
-import gymnasium as gym
+from humanoidstandup_v4 import HumanoidStandupEnv
 import os
 from stable_baselines3 import PPO
 
 paths = sorted(Path("models/").iterdir(), key=os.path.getmtime)
 models_dir = paths[-1]
 
-env = gym.make('HumanoidStandup-v4', render_mode='human')
+env = HumanoidStandupEnv(render_mode='human')
 env.reset()
 
 dirpath = f"{models_dir}/"

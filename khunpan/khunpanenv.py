@@ -1,8 +1,7 @@
 from time import sleep
-import cupy as cp
+import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
-import numpy as np
 import cv2
 
 LEFT = 0
@@ -26,6 +25,10 @@ def matrix_diff(matrix1, matrix2):
 
 def dist_to_goal(point):
     return 4 - np.sqrt((point.x - 1) ** 2 + (point.y - 3) ** 2)
+
+
+def get_num_id(x):
+    return x.num_id if x else 0
 
 
 class KhunPanEnv(gym.Env):
@@ -260,9 +263,6 @@ class Board:
                     observations[i] = self.matrix[x][y].num_id
                 i = i + 1
         return observations
-
-    def get_observations2(self):
-        return np.vectorize(lambda piece: piece.num_id if piece is not None else 0)(self.matrix).flatten()
 
 
 class Piece:
