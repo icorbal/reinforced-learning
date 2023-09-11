@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from mayavi import mlab
 from sb3_contrib import TRPO
 from stable_baselines3.common.utils import set_random_seed
 from stable_baselines3 import PPO

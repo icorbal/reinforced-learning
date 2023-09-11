@@ -37,6 +37,7 @@ def get_levels(matrix, exploration_radius, x, y, base_level):
             else:
                 values.append(1)
     return values
+"""
 # Create a sample matrix
 matrix = np.array([[1, 2, 3, 4, 5],
                    [6, 7, 8, 9, 10],
@@ -49,3 +50,20 @@ start_x, start_y = 2, 2
 # Iterate through concentric squares
 for value in get_levels(matrix, 1, start_x, start_y, 0):
     print(value)
+"""
+matrix = np.array([[1, 1, 2, 2],
+                   [1, 1, 2, 2],
+                   [3, 3, 4, 4],
+                   [3, 3, 4, 4]])
+reduced_array = matrix.reshape((2, 2, 2, 2))
+mean_array = reduced_array.mean(axis=(1, 3))
+print(mean_array)
+
+array_4x4 = np.array([[1, 2, 3, 4],
+                      [5, 6, 7, 8],
+                      [9, 10, 11, 12],
+                      [13, 14, 15, 16]])
+reshaped_array = array_4x4.reshape((2, 2, 2, 2))
+mean_array = np.mean(reshaped_array, axis=(1, 3))
+
+print(mean_array)

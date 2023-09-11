@@ -7,8 +7,8 @@ import time
 import os
 
 
-NUM_STEPS = 100000
-NUM_ENVS = 8
+NUM_STEPS = 1000000
+NUM_ENVS = 1
 
 if __name__ == "__main__":
     models_dir = f"models/{int(time.time())}/"
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     else:
         env = Env()
 
-    model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir)
+    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=logdir, device="cuda", learning_rate=0.0005)
     modelName = model.__class__.__name__
     iters = 0
     while True:
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         model.learn(
             total_timesteps=NUM_STEPS,
             reset_num_timesteps=False,
-            tb_log_name=f"{modelName}10k",
+            tb_log_name=f"{modelName}-lr1e-5",
             callback=CustomTensorboardCallback(),
             progress_bar=True
         )

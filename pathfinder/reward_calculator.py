@@ -6,6 +6,7 @@ class RewardCalculator:
         self.prev_dist_prop = None
         self.base_level = None
         self.prev_dist = None
+        self.min_dist = initial_dist
         self.world = world
         self.initial_dist = initial_dist
         self.destination_point = destination_point
@@ -17,17 +18,20 @@ class RewardCalculator:
         self.base_level = self.world.calc_level(current_point)
 
     def calculate_reward(self, point):
-        if self.has_level_penalty(point):
+        #if point in self.world.walked_points:
+        #   return -5
+        #level = self.world.calc_level(point)
+        level_penalty = 0 #- abs(level - self.base_level) * 4000
+        if point[0] < 0 or point[0] >= 1000 or point[1] < 0 or point[1] >= 1000:
             return -5
-        else:
-            dist = math.dist(self.destination_point, point)
-            dist_prop = dist / self.initial_dist
-            dist_bonus = 1 - dist_prop
-            if dist_bonus < 0:
-                dist_bonus = 0
-            reward = (self.prev_dist_prop - dist_prop) * 10 + dist_bonus
-            if point == self.destination_point:
-                reward = 10000
+        dist = math.dist(self.destination_point, point)
+        dist_prop = dist / self.initial_dist
+        dist_bonus = 1 if dist < self.min_dist else 0
+        if dist_prop > 1:
+            dist_prop = 0
+        reward = dist_prop * dist_prop * dist_bonus
+        #reward = (self.prev_dist_prop - dist_prop) * 10 + dist_bonus * 2 + level_penalty
+        self.min_dist = min(self.min_dist, dist)
         return reward
 
     def has_level_penalty(self, point):

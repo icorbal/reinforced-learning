@@ -17,7 +17,7 @@ class RenderController:
 
     def set_world(self, world):
         self.world = world
-        mlab.mesh(self.world.x, self.world.y, self.world.z)
+        mlab.mesh(self.world.x, self.world.y, self.world.z.transpose())
 
         @mlab.animate(delay=50)
         def anim():
@@ -67,7 +67,7 @@ class RenderController:
         return mlab.points3d(
             self.world.lin_x[x],
             self.world.lin_y[y],
-            self.world.z[y][x],
+            self.world.z[x][y],
             0,
             scale_mode='none',
             scale_factor=scale_factor,
