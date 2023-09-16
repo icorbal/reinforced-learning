@@ -10,7 +10,7 @@ paths = sorted(Path("models/").iterdir(), key=os.path.getmtime)
 models_dir = paths[-1]
 
 dirpath = f"{models_dir}/"
-#dirpath = f"models/1685268675/"
+#dirpath = f"models/1694443583/"
 paths = sorted(Path(dirpath).iterdir(), key=os.path.getmtime)
 model_path = f"{os.path.splitext(paths[-1])[0]}"
 #model_path = "models/no_lvl_penalty.zip"

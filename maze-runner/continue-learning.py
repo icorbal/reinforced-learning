@@ -1,8 +1,5 @@
 import os
 from pathlib import Path
-from mayavi import mlab
-from sb3_contrib import TRPO
-from stable_baselines3.common.utils import set_random_seed
 from stable_baselines3 import PPO
 from typing import Callable
 
@@ -11,8 +8,8 @@ from stable_baselines3.common.vec_env import SubprocVecEnv
 from custom_logs import CustomTensorboardCallback
 from env import Env
 
-NUM_ENVS = 1 # Number of processes to use
-TIMESTEPS = 1000000 # Number of timesteps to train for
+NUM_ENVS = 8 # Number of processes to use
+TIMESTEPS = 100000 # Number of timesteps to train for
 
 if __name__ == "__main__":
     model_paths = sorted(Path("./models/").iterdir(), key=os.path.getmtime)
@@ -52,6 +49,7 @@ if __name__ == "__main__":
             total_timesteps=TIMESTEPS,
             reset_num_timesteps=False,
             tb_log_name=f"{modelName}10k",
-            callback=CustomTensorboardCallback()
+            callback=CustomTensorboardCallback(),
+            progress_bar=True
         )
         model.save(f"{models_dir}/{TIMESTEPS * iters}")
